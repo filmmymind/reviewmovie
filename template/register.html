@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{%load static%}
+{% block title %}
+    Register
+{% endblock title%}
+{% block content %}
+<!--Font-->
+<link href="https://fonts.googleapis.com/css?family=Lobster&display=swap" rel="stylesheet">
+<body>  
+  <style>
+  h1{
+    font-family: 'Lobster', cursive;
+  }
+
+  .alert{
+   width:100%;
+   left:0;
+   padding:0;
+   text-align:center;
+   }
+
+  </style>
+    <div>
+         <div class="register row  shadow-lg">
+          <div class="img-register col p-0 ">
+            <span class="position-absolute text-in-register text-center">
+                <h1>Movie review</h1>
+                <p>เข้ามาเป็นส่วนหนึ่งของการรีวิวภาพยนตร์</p>
+            </span>
+              <img src="{%static 'image/card.jpg' %}" class="" alt="">
+          </div>
+          <div class="register-form col border-left">
+            <h1 class="text-center mt-5">sign-up</h1>
+              {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-danger">{{message}}</div>
+                {% endfor %}
+              {% endif %}
+            <form action="../account/register"class="text-center" method="POST">
+              {% csrf_token %}
+              <input type="text"  placeholder="Firstname" name="firstname">
+              <input type="text" name="lastname"  placeholder="Lastname">
+              <input type="email" name="email"  placeholder="Email">
+              <input type="text" name="username"  placeholder="Username">
+              <input type="password" name="password"  placeholder="Password">
+              <input type="password" name="confirmpassword" placeholder="Confirm Password">
+              <input type="submit"class="btn btn-primary" value="Register">
+              <a href="login">already has account?</a>
+            </form>
+          </div>
+      </div>
+    </div>
+{% endblock content%}

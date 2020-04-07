@@ -1,0 +1,133 @@
+{%load static%}
+{% static "image" as baseUrl %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+      <link rel="stylesheet" href="{%static 'dashboardcss/argon-dashboard.css' %}">
+    <link rel="stylesheet" href="{%static 'bootstrap/css/bootstrap.css' %}">
+    <!--Bootstrap js-->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <title>FilmMyMind - {% block title %}{% endblock title%}</title>
+     <link rel = "icon"  class="titleicon" href ="{% static 'image/icon.png' %}" type = "image/png">
+    <!--my css-->
+    <link rel="stylesheet" href="{%static 'assets/style.css' %}">
+    <link rel="stylesheet" href="{%static 'assets/responsive.css' %}">
+    <!--fontawsome-->
+    <link rel="stylesheet" href="{%static 'fontawesome-free-5.11.2-web/css/all.css' %}">
+    <!-- font -->
+    <link href="https://fonts.googleapis.com/css?family=Athiti|Dosis&display=swap" rel="stylesheet">
+      <link href="{%static 'dashboardjs/plugins/nucleo/css/nucleo.css' %}" rel="stylesheet" />
+  <link href="{%static 'dashboardjs/plugins/@fortawesome/fontawesome-free/css/all.min.css' %}" rel="stylesheet" />
+    <!--java script-->
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.5.9/slick.min.js'></script>
+    <script src="{%static 'assets/script.js' %}"></script>
+  </head>
+  <body>
+  <!--menu-->
+  <div class="basenav">
+   <nav class="fixed-top shadow navbar navbar-expand-lg navbar-light">
+      <a class="navbar-brand" href="{% url 'movie:home' %}"><img src="{%static 'image/flimmymind.png' %}" alt=""></a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'movie:home' %}">HOME</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'movie:movielist' %}" >MOVIE</a>
+          </li>
+<!--          {% if user.is_staff %}-->
+<!--          <li class="nav-item">-->
+<!--            <a class="nav-link" href="{% url 'movie:addmovie' %}">ADD REVIEW</a>-->
+<!--          </li>-->
+<!--          {% endif %}-->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              CATEGORY
+            </a>
+          <div class="s15648">
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                     <div class="row">
+                  {% for category in Category_name %}
+                          <div class="col-6 col-sm-3">
+                            <a  class="dropdown-item" href="{% url 'movie:categorypage' id=category.id%}">{{category.category}}</a>
+                          </div>
+                  {% endfor %}
+                        </div>
+                </div>
+           </div>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'board:webboard' %}">WEB BOARD</a>
+          </li>
+        </ul>
+        <form  action="{% url 'movie:Search' %}" method="get" class="form-inline my-2 my-lg-0 " style="margin-right:5rem; ">
+          <input class="form-control" type="search" name="search"  placeholder="Search" aria-label="Search" style="height:44px;width:300px;">
+          <button class="btn my-2 my-sm-0 btnsearch" type="submit" style="box-shadow: none"><i class="fa fa-search"></i></button>
+        </form>
+<!--          ทดสอบ Setting Menu-->
+        {% if user.is_authenticated %}
+          <li class="nav-item dropdown">
+            <a class="nav-link pr-0" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <div class="media align-items-center">
+                <span class="avatar avatar-sm rounded-circle">
+                  <img alt="Image placeholder" src="{{user.userprofile.user_image.url}}" style="width:36px;height:36px;">
+                </span>
+                <div class="media-body ml-2 d-none d-lg-block">
+                  <span class="mb-0 text-sm  font-weight-bold">{{user}}</span>
+                </div>
+              </div>
+            </a>
+            <div class="dropdown-menu dropdown-menu-arrow dropdown-menu-right">
+              <div class=" dropdown-header noti-title">
+                <h6 class="text-overflow m-0">Welcome!</h6>
+              </div>
+              <a href="{%url 'movie:profile' id=user.id%}" class="dropdown-item">
+                <i class="ni ni-single-02"></i>
+                <span>My profile</span>
+              </a>
+              {% if user.is_staff%}
+              <a href="{%url 'movie:dashboard' id=user.id%}" class="dropdown-item">
+                <i class="ni ni-settings-gear-65"></i>
+                <span>Dashboard</span>
+              </a>
+              <a href="{% url 'movie:addmovie' %}" class="dropdown-item">
+                <i class="ni ni-calendar-grid-58"></i>
+                <span>Add movie</span>
+              </a>
+             {%endif%}
+            {% if user.is_superuser %}
+              <a href="{% url 'report:report' %}" class="dropdown-item">
+                <i class="ni ni-support-16"></i>
+                <span>Report</span>
+              </a>
+            {% endif %}
+              <div class="dropdown-divider"></div>
+              <a href="{% url 'account:logout' %}" class="dropdown-item">
+                <i class="ni ni-button-power"></i>
+                <span>Logout</span>
+              </a>
+            </div>
+          </li>
+        {% else %}
+          <a href="{% url 'account:login' %}"><button type="button" class="btn btn-red">Login</button></a>
+          <a href="{% url 'account:register' %}"><button type="button" class="btn btn-gray">Signup</button></a>
+        {% endif %}
+      </div>
+    </nav>
+    </div>
+    <!--end menu-->
+    {% block content %}
+
+    {% endblock content %}
+  </body>
+</html>

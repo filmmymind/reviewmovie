@@ -1,0 +1,274 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+Webboard Content
+{% endblock title %}
+{% block content %}
+<body style="background:rgba(224,223,223)">
+<style>
+   .setimage img{
+        max-width:100%;
+    }
+    a:hover{
+        cursor: pointer;
+    }
+    .editicon .tooltiptext {
+      visibility: hidden;
+      background:white;
+      color:black;
+      text-align: center;
+      border-radius: 6px;
+      padding: 5px 0;
+      max-height:25px;
+
+      /* Position the tooltip */
+      position: absolute;
+      top:-25px;
+      z-index: 1;
+    }
+
+.editicon:hover .tooltiptext {
+  visibility: visible;
+    }
+
+.django-ckeditor-widget{
+    width:100%;
+}
+p{
+clear:both;}
+
+ .alert{
+  width:100%;
+  left:0;
+  padding:0;
+  top:-10px;
+  text-align:center;
+  }
+
+  .alert-success {
+       color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    top: -33px;
+    position: absolute;
+    z-index: 999;
+}
+</style>
+<script>
+
+</script>
+    <div class="container shadow-lg  setimage mb-4 mt-7 p-0 position-relative" style="background-color:#b9b8b8;border-radius: 15px;">
+           {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-success">
+                    {{message}}
+                </div>
+            {% endfor %}
+        {% endif %}
+        <div class="form-group position-absolute" style="right:15px;bottom:5px;">
+        {% if user == post.Author %}
+          <a class="btn btn-warning text-white" href="{% url 'edit_delete:editwebboard' id=post.id %}">Edit</a>
+        {% endif %}
+        {% if user == post.Author or user.is_superuser %}
+            <a class="btn btn-outline-danger" data-toggle="modal" data-target="#deleteboard{{post.id}}">Delete</a>
+        {% endif %}
+        </div>
+
+        <!-- delete webboard Modal -->
+<div class="modal fade" id="deleteboard{{post.id}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Delete webboard</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        You need to delete webboard {{post.id}}?
+      </div>
+      <div class="modal-footer">
+          <form action="{% url 'edit_delete:deletewebboard' id=post.id %}">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Delete</button>
+          </form>
+      </div>
+    </div>
+  </div>
+</div>
+        <div class="container">
+            <h2 style="color:yellow;" class="pt-3"><b> {{ post.Title }} </b></h2>
+            <hr>
+            <div class="pb-5">
+                <p>{{post.Content | safe}}</p>
+            </div>
+        </div>
+        <div class="p-2 border-dark" style="border-top-style: dotted">
+            <p style="font-size:13px;">POST BY | {{post.Author}} <br> POST DATE | {{post.Post_Date}}</p>
+        </div>
+    </div>
+
+
+    <div class="position-relative" style="height:20px;margin:1rem 0;">
+        <hr class="border border-dark" style="width:90%">
+        <p class="position-absolute" style="bottom:-10px;left:10%;background:rgba(220, 219, 219);">{{count}} Comment</p>
+    </div>
+<!--Comment-->
+
+{% for comment in boardcomment%}
+     <div class="container  position-relative shadow-lg setimage mt-1 mb-3 "  style="border-radius: 15px;{% if comment.author == post.Author %}background:#b9b8b8 {% else %} background:rgba(224,223,223) {% endif %}">
+         <div class="form-group position-absolute" style="right:25px;top:13px;">
+            <a class="text-white editicon" onclick="openreply({{comment.id}})"><i class="fas fa-reply"><span class="tooltiptext" style="font-weight:400;">Reply</span> </i></a>
+           {% if user == comment.author %}
+            <a class="text-white editicon" onclick="openeditcomment({{comment.id}})"><i class="far fa-edit"><span class="tooltiptext">Edit</span> </i></a>
+            <a data-toggle="modal" data-target="#comment{{comment.id}}" class="text-white editicon"><i class="far fa-trash-alt"><span class="tooltiptext">Delete</span></i></a>
+            {% endif %}
+         </div>
+<!--         Delete comment-->
+<div class="modal fade" id="comment{{comment.id}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Delete comment</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        You need to delete comment {{comment.id}} ?
+      </div>
+      <div class="modal-footer">
+          <form action="{% url 'edit_delete:deletewebboardcomment' id=comment.id %}">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Delete</button>
+          </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!--         End Delete comment-->
+        <p class="pt-3" style="font-size:13px;">Comment by:{{comment.author}} | {{comment.comment_date}}</p>
+        <div class="pb-2 pl-2 pr-2">
+            <div id="commentold{{comment.id}}"><p> {{comment.comment|safe}} </p></div>
+<!--            edit comment ckeditor-->
+            <form action="{% url 'edit_delete:editwebboardcomment' id=comment.id %}" method="post" enctype="multipart/form-data"  id="editcomment{{comment.id}}" style="display:none;">
+                {% csrf_token %}
+                <textarea name="editcomment"  cols="30" rows="10" class="ckeditor">{{comment.comment|safe}}</textarea>
+                <script tyle="text/javascript">
+                    CKEDITOR.replace('editcomment');
+                    CKEDITOR.add
+                </script>
+                <div class="form-group mt-1">
+                    <button type="submit" class="btn btn-warning">Edit</button>
+                    <button type="reset" class="btn btn-danger" onclick="openeditcomment({{comment.id}})">Cancle</button>
+                </div>
+                <script>
+
+                </script>
+            </form>
+<!--            end edit comment ckeditor-->
+        </div>
+    </div>
+<!--reply field-->
+ <div class="container shadow-lg setimage mt-1 mb-3 position-relative" style="display:none" id="replyarea{{comment.id}}">
+     <div class="position-absolute" style="right:15px;top:5px;"><span><a onclick="openreply({{comment.id}})"><h3>x</h3></a></span></div>
+        <form action="" method="post" class="p-4">
+            {% csrf_token %}
+            <textarea name="replytext" id="" cols="20" rows="5"></textarea>
+            <input type="hidden" name="comment_id" value="{{comment.id}}">
+            <input type="submit" value="Comment" class="btn btn-danger" style="font-size:10px;">
+        </form>
+    </div>
+<!--end reply field-->
+<!--reply text-->
+    {% if comment.replies.all %}
+     <div class="container" style="margin-top:-.5rem; ">
+        <button style="width:100%;margin:0 0 1rem 0;" class=" border border-dark" style="bottom:0;left:0;" onclick="shcomment({{comment.id}})">ดูความคิดเห็น</button>
+    </div>
+    {% endif %}
+ <div class="board-reply container mb-3  position-relative" style="margin-top:-1rem;display:none;"  id="shcomment{{comment.id}}" >
+{% for reply in comment.replies.all %}
+        <div class="container shadow-lg position-relative mt-1 " style="border-radius: 15px;{% if reply.author == post.Author%}background:#b9b8b8;{% else%}background:rgba(224,223,223){%endif%}">
+            {% if user == reply.author %}
+<!--            Reply edit and delete button-->
+            <div class="form-group position-absolute" style="right:15px;top:10px;">
+                <a class="text-white editicon" onclick="openeditreply({{reply.id}})"><i class="far fa-edit"><span class="tooltiptext">Edit</span> </i></a>
+                <a data-toggle="modal" data-target="#replycomment{{reply.id}}" class="text-white editicon"><i class="far fa-trash-alt"><span class="tooltiptext">Delete</span></i></a>
+            </div>
+<!--            End Reply edit and delete button-->
+<!--            Reply Delete modal-->
+<div class="modal fade" id="replycomment{{reply.id}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Delete reply</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        You need to delete reply {{reply.id}} ?
+      </div>
+      <div class="modal-footer">
+          <form action="{% url 'edit_delete:deletewebboardcomment' id=reply.id %}">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Delete</button>
+          </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!--            End Reply Delete modal-->
+            {% endif %}
+            <p class="pt-3" style="font-size:13px;">user:{{reply.author}} | {{reply.comment_date}}</p>
+            <div class="pb-2 pl-2 pr-2">
+                 <p id="replyold{{reply.id}}">{{reply.comment}}</p>
+<!--                edit reply-->
+                <form action="{% url 'edit_delete:editwebboardreply' id=reply.id %}" method="post" enctype="multipart/form-data" id="editreply{{reply.id}}" style="display:none">
+                    {% csrf_token %}
+                    <textarea name="editreply" cols="30" rows="5">{{reply.comment}}</textarea>
+                    <button type="submit">Edit</button>
+                    <button type="reset" class="btn btn-warning" onclick="openeditreply({{reply.id}})">Cancle</button>
+                </form>
+<!--            end edit reply-->
+            </div>
+        </div>
+ <!--end reply text-->
+ {% endfor %}
+ </div>
+<script>
+    function openreply(id){
+        var x =  document.getElementById("replyarea" + id);
+        if (!x.style.display || x.style.display == "none"){
+            x.style.display = "block";
+        }else{
+            x.style.display ="none";
+        }
+    }
+    function shcomment(id){
+
+        var x = document.getElementById("shcomment"+id);
+        if (!x.style.display || x.style.display == "none"){
+            x.style.display = "block";
+        }else{
+            x.style.display = "none";
+        }
+    }
+</script>
+{% endfor %}
+<!--End Comment-->
+<!--Create Comment-->
+    <div class="container shadow-lg setimage mt-1 mb-3">
+        <form action="" method="post" class="p-4">
+            {% csrf_token %}
+             {{form.media}}
+            {{form.as_p}}
+            <input type="submit" value="Comment" class="btn btn-danger">
+        </form>
+    </div>
+<!--End Createcomment-->
+<!--Footer-->
+{% include 'footer.html'%}
+<!--End Footer-->
+{% endblock content %}
+

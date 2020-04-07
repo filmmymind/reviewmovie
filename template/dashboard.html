@@ -1,0 +1,561 @@
+{%extends 'basedashboard.html' %}
+{%block dashactive %} active {%endblock dashactive%}
+{% block content %}
+{%load static%}
+<style>
+.modal-dialog-scrollable {
+  display: -ms-flexbox;
+  display: flex;
+  max-height: calc(100% - 1rem);
+}
+.modal-dialog{
+    max-width:700px;
+}
+
+.modal-dialog-scrollable .modal-content {
+  max-height: calc(100vh - 3.5rem);
+  overflow: hidden;
+}
+
+.modal-dialog-scrollable .modal-header,
+.modal-dialog-scrollable .modal-footer {
+  -ms-flex-negative: 0;
+  flex-shrink: 0;
+}
+
+.modal-dialog-scrollable .modal-body {
+  overflow-y: auto;
+}
+
+    .alert{
+  width:100%;
+  left:0;
+  padding:0;
+  top:-10px;
+  text-align:center;
+  }
+
+  .alert-success {
+       color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    top: -33px;
+    position: absolute;
+    z-index: 999;
+}
+</style>
+<div class="container-fluid mt--7 position-relative">
+      {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-success">
+                    {{message}}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {%if user.is_superuser%}
+    <div class="mt-5">
+<!--          USER REPORT FIRST 3-->
+        <div class="mb-5" style="margin:0 auto;">
+      <div class="card shadow">
+        <div class="card-header border-0">
+          <div class="row align-items-center">
+            <div class="col">
+              <h3 class="mb-0">NEW USER</h3>
+            </div>
+             <div class="col text-right">
+              <a class="btn btn-sm btn-primary" href="{%url 'report:report' %}">See all</a>
+            </div>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <!-- Projects table -->
+          <table class="table align-items-center table-flush text-center">
+            <thead class="thead-light">
+              <tr>
+                <th scope="col">ID</th>
+                <th scope="col">ชื่อสมาชิก</th>
+                <th scope="col">สถานะ</th>
+                <th scope="col">วันที่เข้าร่วม</th>
+                <th scope="col">แก้ไข</th>
+              </tr>
+            </thead>
+            <tbody>
+      {% for new_user in new_user %}
+                 <tr>
+                     <td>{{new_user.id}}</td>
+                     <td>{{new_user}}</td>
+                     {% if new_user.is_staff == False %}
+                     <td><span>Member</span> </td>
+                     {% elif new_user.is_staff == True and new_user.is_superuser == False %}
+                     <td><span style="color:blue">Reviewer</span> </td>
+                     {% elif new_user.is_superuser %}
+                     <td><span style="color:red">Admin</span> </td>
+                     {% endif %}
+
+                      <td>{{ new_user.date_joined }}</td>
+                      <td>
+                          <span style="margin-right:5px;"><a href="{% url 'report:userinformation' id=new_user.id%}"><i class="fas fa-edit" style="color:black;font-size:20px;"></i></a></span>
+                       <span><a data-toggle="modal" data-target="#deletemodal{{new_user.id}}" style="color:red;font-size:20px;"><i class="fas fa-trash-alt"></i></a></span>
+                      </td>
+                   </tr>
+      <div class="modal fade" id="deletemodal{{new_user.id}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">DELETE {{new_user}}</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <span>You need to delete member id:{{new_user.id}} | {{new_user}} ?</span>
+                      </div>
+                      <div class="modal-footer">
+                      <form action="{%url 'report:memberdelete' id=new_user.id %}" method="post">
+                          {%csrf_token%}
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Delete</button>
+                      </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+             {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+<!--          MOVIE REPORT FIRST 3-->
+        <div class="mb-5" style="margin:0 auto;">
+      <div class="card shadow">
+        <div class="card-header border-0">
+          <div class="row align-items-center">
+            <div class="col">
+              <h3 class="mb-0">NEW MOVIE REVIEW</h3>
+            </div>
+             <div class="col text-right">
+              <a class="btn btn-sm btn-primary" href="{%url 'report:report' %}">See all</a>
+            </div>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <!-- Projects table -->
+          <table class="table align-items-center table-flush text-center">
+            <thead class="thead-light">
+              <tr>
+                <th scope="col">ID</th>
+                <th scope="col">ชื่อผู้รีวิว</th>
+                <th scope="col">ชื่อเรื่อง</th>
+                <th scope="col">วันที่</th>
+                <th scope="col">แก้ไข</th>
+              </tr>
+            </thead>
+            <tbody>
+      {% for new_movie in new_movie %}
+                 <tr>
+                     <td>{{new_movie.id}}</td>
+                     <td>{{new_movie.author}}</td>
+                     <td>{{new_movie}}</td>
+                      <td>{{ new_movie.review_date }}</td>
+                      <td>
+                        <span style="margin-right:5px;"><a href="{% url 'movie:moviedetail' id=new_movie.id %}"><i class="fas fa-eye" style="color:black;font-size:20px;"></i></a></span>
+                       <span><a data-toggle="modal"  data-target="#deletemovie{{new_movie.id}}" style="color:red;font-size:20px;"><i class="fas fa-trash-alt"></i></a></span>
+                      </td>
+                   </tr>
+                                    <!--              deletemovie-->
+            <div class="modal fade" id="deletemovie{{new_movie.id}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title">DELETE {{new_movie}}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    You need to delete Movie : {{new_movie}} ?
+                  </div>
+                  <div class="modal-footer">
+                      <form action="{%url 'movie:deletemovie' id=new_movie.id %}">
+                          {%csrf_token%}
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="sunmit" class="btn btn-primary">DELETE</button>
+                      </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+             {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+<!--          WEBBOARD REPORT FIRST 3-->
+        <div class=" mb-5" style="margin:0 auto;">
+      <div class="card shadow">
+        <div class="card-header border-0">
+          <div class="row align-items-center">
+            <div class="col">
+              <h3 class="mb-0">NEW WEBBOARD</h3>
+            </div>
+             <div class="col text-right">
+              <a class="btn btn-sm btn-primary" href="{%url 'report:report' %}" >See all</a>
+            </div>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <!-- Projects table -->
+          <table class="table align-items-center table-flush text-center">
+            <thead class="thead-light">
+              <tr>
+                <th scope="col">ID</th>
+                <th scope="col">ชื่อสมาชิก</th>
+                <th scope="col">ชื่อบอร์ด</th>
+                <th scope="col">วันที่โพส</th>
+                <th scope="col">แก้ไข</th>
+              </tr>
+            </thead>
+            <tbody>
+      {% for new_webboard in new_webboard %}
+                 <tr>
+                     <td>{{new_webboard.id}}</td>
+                     <td>{{new_webboard.Author}}</td>
+                      <td>{{new_webboard}}</td>
+
+                      <td>{{ new_webboard.Post_Date }}</td>
+                      <td>
+                        <span style="margin-right:5px;"><a href="{% url 'board:boardcontent' slug=new_webboard.Slug %}"><i class="fas fa-eye" style="color:black;font-size:20px;"></i></a></span>
+                       <span><a data-toggle="modal" data-target="#deleteboard{{new_webboard.id}}" style="color:red;font-size:20px;"><i class="fas fa-trash-alt"></i></a></span>
+                      </td>
+                   </tr>
+<!--              deleteboard-->
+            <div class="modal fade" id="deleteboard{{new_webboard.id}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title">DELETE {{new_webboard}}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    You need to delete Webboard : {{new_webboard}} ?
+                  </div>
+                  <div class="modal-footer">
+                      <form action="{%url 'board:deletewebboarddashboard' id=new_webboard.id %}">
+                          {%csrf_token%}
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="sunmit" class="btn btn-primary">DELETE</button>
+                      </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+             {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+<!--END ADMIN REOIRT 3 FIRST-->
+    </div>
+        {% elif user.is_staff and not user.is_superuser%}
+    <div class="row mt-5">
+<!-- my movie and my board-->
+        <div class="col-xl-8 orde   r-xl-1">
+<!--my movie-->
+            <div class="mb-5" style="margin:0 auto;">
+                <div class="card shadow">
+                    <div class="card-header border-bottom border-gray">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h3 class="mb-0">YOUR NEW MOVIER REVIEW</h3>
+                            </div>
+                            <div class="col text-right">
+                                <a class="btn btn-sm btn-primary text-white" data-toggle="modal" data-target="#allyourmovie{{mymovie.id}}">See all</a>
+                            </div>
+                        </div>
+                    </div>
+                        <div class="mymovie" style="padding-bottom: 20px;">
+                        {%for item in mymovie%}
+                         <div class="card inline" >
+                                <a href="{% url 'movie:moviedetail' id=item.id%}">
+                                  <img src="{{item.movie_image.url}}" class="card-img-top card-img-height" alt="...">
+                                  <div class="card-body">
+                                    <h5 class="card-title" style="overflow:hidden;max-height:23px;">{{item.moviename}}</h5>
+                                    <p class="card-text">Post by:{{item.author}}<br> {{item.review_date}}</p>
+                                  </div>
+                                </a>
+                         </div>
+                        {% endfor %}
+                         <div class="card inline bg-neutral border-0 shadow-none"  style="height: 100px; width: 100px;margin-left:30px">
+                            <a href="{%url 'movie:addmovie' %}">
+                              <button type="button" class="btn btn-outline-danger"><img src="{%static 'image/plus.png' %}" class="card-img-top card-img-height" alt="..."></button>
+                              <div class="card-body">
+
+                              </div>
+                            </a>
+                         </div>
+                        </div>
+<!--modal allmy movie-->
+                    <div class="modal fade" id="allyourmovie{{mymovie.id}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalScrollableTitle">Modal title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+    <!--        new movie table-->
+            <div class="modal-body">
+        <!-- al new movie table -->
+                <div class="table-responsive">
+                      <table class="table align-items-center table-flush text-center">
+                        <thead class="thead-light">
+                          <tr>
+                            <th scope="col">ชื่อเรื่อง</th>
+                            <th scope="col">วันที่รีวิว</th>
+                            <th scope="col">จำนวนComment</th>
+                            <th scope="col">แก้ไข</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                  {% for movie in allmymovie %}
+                             <tr>
+                                 <td>{{movie}}</td>
+                                 <td>{{movie.review_date}}</td>
+                                 <td>2</td>
+                                  <td>
+                                   <span style="margin-right:5px;"><a href=""><i class="fas fa-edit" style="color:black;font-size:20px;"></i></a></span>
+                                   <span><a data-toggle="modal" data-target="#deletemodal{{movie.id}}" style="color:red;font-size:20px;"><i class="fas fa-trash-alt"></i></a></span>
+                                  </td>
+                               </tr>
+                <!--          delete movie-->
+                              <div class="modal fade " id="deletemodal{{movie.id}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" style="margin:0 auto;max-width:500px;">
+                                  <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                      <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLabel">DELETE {{movie}}</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                          <span aria-hidden="true">&times;</span>
+                                        </button>
+                                      </div>
+                                      <div class="modal-body">
+                                        <span>You need to delete member id:{{movie.id}} | {{movie}} ?</span>
+                                      </div>
+                                      <div class="modal-footer">
+                                      <form action="{%url 'movie:deletemovie' id=movie.id %}" method="post">
+                                          {%csrf_token%}
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                        <button type="submit" class="btn btn-primary">Delete</button>
+                                      </form>
+                                      </div>
+                                    </div>
+                                  </div>
+                              </div>
+                 {% endfor %}
+                        </tbody>
+                      </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+        </div>
+        </div>
+        </div>
+            </div>
+<!--End my movie-->
+<!--my board-->
+            <div class="mb-5" style="margin:0 auto;">
+                <div class="card shadow">
+                    <div class="card-header border-bottom border-gray">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h3 class="mb-0">YOUR NEW WEBBOARD</h3>
+                            </div>
+                            <div class="col text-right">
+                                <a class="btn btn-sm btn-primary text-white" data-toggle="modal" data-target="#allmyboard">See all</a>
+                            </div>
+                        </div>
+                    </div>
+<!--webboard table -->
+                    <div class="table-responsive">
+                          <table class="table align-items-center table-flush text-center">
+                            <thead class="thead-light">
+                              <tr>
+                                <th scope="col">ชื่อบอร์ด</th>
+                                <th scope="col">วันที่โพส</th>
+                                <th scope="col">จำนวนComment</th>
+                                <th scope="col">แก้ไข</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                      {% for board in myboard %}
+                                 <tr>
+                                     <td>{{board}}</td>
+                                     <td>{{board.Post_Date}}</td>
+                                     <td>2</td>
+                                      <td>
+                                        <span style="margin-right:5px;"><a href="{% url 'board:boardcontent' slug=board.Slug %}"><i class="fas fa-edit" style="color:black;font-size:20px;"></i></a></span>
+                                       <span><a data-toggle="modal" data-target="#deletemyboard{{board.id}}" style="color:red;font-size:20px;"><i class="fas fa-trash-alt"></i></a></span>
+                                      </td>
+                                   </tr>
+            <!--          delete webboard-->
+                                  <div class="modal fade" id="deletemyboard{{board.id}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                      <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                          <div class="modal-header">
+                                            <h5 class="modal-title" id="exampleModalLabel">DELETE {{board}}</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                              <span aria-hidden="true">&times;</span>
+                                            </button>
+                                          </div>
+                                          <div class="modal-body">
+                                            <span>You need to delete Webboard:{{board.id}} | {{board}} ?</span>
+                                          </div>
+                                          <div class="modal-footer">
+                                          <form action="{% url 'board:deletewebboarddashboard' id=board.id %}" method="post">
+                                              {%csrf_token%}
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                            <button type="submit" class="btn btn-primary">Delete</button>
+                                          </form>
+                                          </div>
+                                        </div>
+                                      </div>
+                                  </div>
+                     {% endfor %}
+                                        </tbody>
+                                      </table>
+                    </div>
+<!--end webboard table-->
+<!--modal all my board-->
+<div class="modal fade" id="allmyboard" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+    <div class="modal-header">
+    <h5 class="modal-title" id="exampleModalScrollableTitle">All my webboard</h5>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+    </div>
+    <!--        new board table-->
+    <div class="modal-body">
+    <div class="table-responsive">
+           <table class="table align-items-center table-flush text-center">
+                    <thead class="thead-light">
+                      <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">ชื่อผู้โพส</th>
+                        <th scope="col">ชื่อบอร์ด</th>
+                        <th scope="col">วันที่โพส</th>
+                        <th scope="col">แก้ไข</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+              {% for webboard in myboard %}
+                         <tr>
+                             <td>{{webboard.id}}</td>
+                             <td>{{webboard.Author}}</td>
+                             <td style="max-width: 116px;overflow: hidden">{{webboard}}</td>
+                              <td>{{ webboard.Post_Date }}</td>
+                              <td>
+                                <span style="margin-right:5px;"><a href="{% url 'board:boardcontent' slug=webboard.Slug %}"><i class="fas fa-edit" style="color:black;font-size:20px;"></i></a></span>
+                               <span><a data-toggle="modal" data-target="#deleteboard{{webboard.id}}" style="color:red;font-size:20px;"><i class="fas fa-trash-alt"></i></a></span>
+                              </td>
+                           </tr>
+                    <!--delete webboard-->
+                    <div class="modal fade"  id="deleteboard{{webboard.id}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                      <div class="modal-dialog " role="document">
+                        <div class="modal-content "  >
+                          <div class="modal-header">
+                            <h5 class="modal-title">DELETE {{webboard}}</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                              <span aria-hidden="true">&times;</span>
+                            </button>
+                          </div>
+                          <div class="modal-body">
+                            You need to delete Webboard : {{webboard}} ?
+                          </div>
+                          <div class="modal-footer">
+                              <form action="{%url 'board:deletewebboarddashboard' id=webboard.id %}">
+                                  {%csrf_token%}
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button type="sunmit" class="btn btn-primary">DELETE</button>
+                              </form>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <!--End delete ewebboard-->
+                     {% endfor %}
+                    </tbody>
+                  </table>
+                    </div>
+    </div>
+    <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+    <button type="button" class="btn btn-primary">Save changes</button>
+    </div>
+    </div>
+    </div>
+    </div>
+<!--End modal all my movie-->
+                </div>
+            </div>
+<!--End my board-->
+        </div>
+    <!--             PROFILE-->
+        <div class="col-xl-4 order-xl-2 mb-5 mb-xl-0">
+          <div class="card card-profile shadow">
+            <div class="row justify-content-center">
+              <div class="col-lg-3 order-lg-2">
+                <div class="card-profile-image pt-8 pt-md-4 pb-0 pb-md-4">
+                  <a href="#">
+                    <img src="{{ user.userprofile.user_image.url}}" class="rounded-circle" style="height:160px;width:160px;">
+                  </a>
+                </div>
+              </div>
+            </div>
+            <div class="card-body pt-0 pt-md-4">
+              <div class="row">
+                <div class="col">
+                  <div class="card-profile-stats d-flex justify-content-center mt-md-5">
+                    <div>
+                      <span class="heading">{{count_movie}}</span>
+                      <span class="description">Review</span>
+                    </div>
+                    <div>
+                      <span class="heading">{{count_board}}</span>
+                      <span class="description">Webboard</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="text-center">
+                <h3>
+                  {{user.first_name}}  {{user.last_name}}
+                </h3>
+                <div class="h5 font-weight-300">
+                  <i class="ni location_pin mr-2"></i>Status :{%if user.is_superuser %} ADMIN
+                    {% elif user.is_staff %} REVIEWER {% else %} MEMBER {% endif %}
+                </div>
+                <div class="h5 mt-4">
+                  <i class="ni business_briefcase-24 mr-2"></i>Solution Manager - Creative Tim Officer
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{%endblock content %}

@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{%load static%}
+{% block content %}
+<style>
+        body{
+        background:rgb(224,223,223)
+        }
+        .bg-mred {
+            background:rgba(174,0,29);
+        }
+
+    .resultnotfound img{
+        width:100%
+    }
+</style>
+<div class="header-review-image mt-5">
+    <img src="{%static 'image/searchheader.png' %}" alt="">
+</div>
+<div class="container shadow mb-5 mt-5 bg-white pb-4 searchpage" style="border-radius: 20px;padding:0;max-width:950px;">
+    <div class="pt-4 pl-3 bg-mred" style="border-top-left-radius:20px;border-top-right-radius: 20px;">
+        <h3 class="pb-2" style="color:white;"><b>MOVIE RESULT</b></h3>
+    </div>
+     <div class="movie container mt-3 mb-5" style="width:100%;">
+          {% for item in movie %}
+          <div class="card inline text-center">
+              <a href="{% url 'movie:moviedetail' id=item.id%}">
+            <img src="{{item.movie_image.url}}" class="card-img-top card-img-height" alt="...">
+            <div class="card-body">
+              <h5 class="card-title" style="overflow:hidden;max-height: 23px;">{{item.moviename}}</h5>
+              <p class="card-text">Post by:{{item.author}} <br>{{item.review_date}}</p>
+            </div>
+              </a>
+          </div>
+            {% empty %}
+                <div class="text-center resultnotfound">
+                    <img src="{%static 'image/no_result.png' %}" alt="">
+                </div>
+          {% endfor %}
+      </div>
+
+       <div class="pt-4 pl-3 bg-mred" style="border-top-left-radius:20px;border-top-right-radius: 20px;">
+            <h3 class="pb-2" style="color:white;"><b>WEBBOARD RESULT</b></h3>
+       </div>
+    <div class="container">
+    {% for data in webboard %}
+    <div class="border border-dark m-4">
+        <div class="sm-detail m-4 position-relative">
+            <h4>{{data.Title}}</h4>
+            <p>{{data.Content|striptags|slice:':100' }}</p>
+            <span>{{data.Tag}}</span>
+            <div class="webboard-button">
+                <a href="{% url 'board:boardcontent' slug=data.Slug %}"> <input type="button" class="btn btn-red" value="View"></a>
+            </div>
+        </div>
+    </div>
+              {% empty %}
+                <div class="text-center resultnotfound">
+                    <img src="{%static 'image/no_result.png' %}" alt="">
+                </div>
+    {% endfor %}
+    </div>
+</div>
+
+{% include 'footer.html' %}
+{% endblock content %}

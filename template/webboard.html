@@ -1,0 +1,100 @@
+{%  extends 'base.html' %}
+{% load static %}
+{% block title %}
+    Webboard
+{% endblock title %}
+{% block content %}
+ <style>
+        body{
+        background:rgb(224,223,223)}
+     .alert{
+  width:100%;
+  left:0;
+  padding:0;
+  top:-10px;
+  text-align:center;
+  }
+
+  .alert-success {
+       color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    top: -33px;
+    position: absolute;
+    z-index: 999;
+}
+</style>
+        <div class="webboardheader">
+            <img src="{%static 'image/webboardheader.png' %}" alt="">
+        </div>
+
+        <div class="webboard bg-white p-5 position-relative">
+              {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-success">
+                    {{message}}
+                </div>
+            {% endfor %}
+        {% endif %}
+            {% if user.is_authenticated %}
+            <a href="../webboard/create"><button class="btn btn-primary addboard">เพิ่มกระทู้</button></a>
+            {% endif %}
+            <ul class="nav nav-tabs">
+<!--                <li class="nav-item">-->
+<!--                    <a href="#hot" class="nav-link active" role="tab" data-toggle="tab">กระทู้มาแรง</a>-->
+<!--                </li>-->
+
+                <li class="nav-item">
+                    <a href="#new" class="nav-link" role="tab" data-toggle="tab">กระทู้ล่าสุด</a>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <!--Webboard HOT-->
+                <div  role="tabpanel" class="tab-pane active" id="hot">
+                    {% for data in items %}
+                    <div class="border border-dark m-4">
+                        <div class="sm-detail m-4 position-relative">
+                            <h4>{{data.Title}}</h4>
+                            <p>{{data.Content|striptags|slice:':100' }}</p>
+                            <span>{{data.Tag}}</span>
+                            <div class="webboard-button">
+                                <a href="{% url 'board:boardcontent' slug=data.Slug %}"> <input type="button" class="btn btn-red" value="View"></a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!--Webboard NEW-->
+<!--                <div  role="tabpanel" class="tab-pane" id="new">-->
+<!--                     <div class="border border-dark m-4">-->
+<!--                        <div class="sm-detail m-4 position-relative">-->
+<!--                            <h4>Topic NEW</h4>-->
+<!--                            <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy</p>-->
+<!--                            <span>#Tag #Tag #Tag</span>-->
+<!--                              <div class="webboard-button">-->
+<!--                                <input type="button" class="btn btn-red" value="View">-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                     <div class="border border-dark m-4">-->
+<!--                        <div class="sm-detail m-4 position-relative">-->
+<!--                            <h4>Topic NEW<h4>-->
+<!--                            <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy</p>-->
+<!--                            <span>#Tag #Tag #Tag</span>-->
+<!--                                  <div class="webboard-button">-->
+<!--                                <input type="button" class="btn btn-red" value="View">-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+            </div>
+        </div>
+<!--pagenumber-->
+   {% include 'paginator.html' %}
+    <!--end pagenumber-->
+        <!-- Footer -->
+    {% include 'footer.html' %}
+
+<!-- Footer -->
+{% endblock content %}

@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{%load static%}
+{% block title %}
+    Login
+{% endblock title%}
+{% block content %}
+<style>
+  .alert{
+   width:100%;
+   left:0;
+   padding:0;
+   text-align:center;
+   }
+</style>
+<!--Font-->
+<link href="https://fonts.googleapis.com/css?family=Lobster&display=swap" rel="stylesheet">
+  <style>
+  h1{
+    font-family: 'Lobster', cursive;
+  }
+  </style>
+
+    <div class="login row  shadow-lg" >
+      <div class="img-login col-sm-6 p-0 " >
+          <span class="position-absolute text-in-login text-center">
+            <h1>Movie review</h1>
+            <p>เข้ามาเป็นส่วนหนึ่งของการรีวิวภาพยนตร์</p>
+          </span>
+            <img src="{%static 'image/card.jpg' %}" class="" alt="">
+        </div>
+      <div class="login-form col-lg-6 border-left">
+        <h1 class="text-center mt-5">Login</h1>
+        {% if messages %}
+          {% for message in messages %}
+            {% if message.tags == "error" %}
+            <div class="alert alert-danger position-absolute">
+              {{message}}
+            </div>
+            {% endif %}
+            {% if message.tags == "success" %}
+            <div class="alert alert-success position-absolute">
+              {{message}}
+            </div>
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+        <form action="../account/login" class="text-center" method="POST">
+          {% csrf_token %}
+          <input type="username" id="username"  placeholder="Username" name="username">
+          <input type="password" id="Password"  placeholder="Password" name="password">
+          <input type="submit"class="btn btn-primary" value="login">
+          <span class="line"><p style="font-size:20px; margin-top:50px;"><b>OR</p></b></span>
+          <span class="needaccount">
+          Need an account? <a href="register">Sign up</a></span>
+        </form>
+
+      </div>
+  </div>
+{% endblock content %}

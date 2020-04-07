@@ -1,0 +1,295 @@
+{% extends 'basedashboard.html' %}
+{%block reportactive %} active {%endblock reportactive%}
+{%block content%}
+<style>
+     .alert{
+  width:100%;
+  left:0;
+  padding:0;
+  top:-10px;
+  text-align:center;
+  }
+  .alert-success {
+       color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    top: -33px;
+    position: absolute;
+    z-index: 999;
+}
+</style>
+ <div class="container-fluid mt--7">
+      <div class="row mt-5">
+    <!--REPORT-->
+            <div class="col-xl-3">
+              <div class="card shadow">
+                <div class="card-header border-0">
+                  <div class="row align-items-center">
+                    <div class="col">
+                      <h3 class="mb-0">OPTION</h3>
+                    </div>
+                  </div>
+                </div>
+                <div class="table-responsive">
+                  <!-- menu table -->
+                  <table class="table align-items-center table-flush">
+                    <thead class="thead-light">
+                      <tr>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>
+                          <button class="btn btn-secondary active tabtab" style="width:100%;" id="re_use" onclick="openoptionreport(event, 're_user')">USER</button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <button class="btn btn-secondary tabtab" id="re_mov" onclick="openoptionreport(event, 're_movie')" style="width:100%;">MOVIE</button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <button class="btn btn-secondary tabtab" id="re_board" onclick="openoptionreport(event, 're_webboard')" style="width:100%;">WEBBOARD</button>
+                        </td>
+                      </tr>
+
+                    </tbody>
+                  </table>
+    <!--              End menutable-->
+                </div>
+              </div>
+            </div>
+              <div class="col-xl-8 mb-5 mb-xl-0">
+    <!--            ALL USER-->  {% if messages %}
+                        {% for message in messages%}
+                            <div class="alert alert-success">{{message}}</div>
+                        {% endfor %}
+                    {% endif%}
+                <div class="tabcontent_report" style="display: block" id="re_user">
+                 <div class="card shadow">
+                <div class="card-header border-0">
+                  <div class="row align-items-center">
+                    <div class="col">
+                      <h3 class="mb-0">ALL USER</h3>
+                    </div>
+                  </div>
+                </div>
+                <div class="table-responsive">
+                  <!-- Projects table -->
+                  <table class="table align-items-center table-flush text-center">
+                    <thead class="thead-light">
+                      <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">ชื่อสมาชิก</th>
+                        <th scope="col">สถานะ</th>
+                        <th scope="col">เข้าใช้ล่าสุด</th>
+                        <th scope="col">แก้ไข</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for member in member %}
+                         <tr>
+                             <td>{{member.id}}</td>
+                             <td>{{member}}</td>
+                             {% if member.is_staff == False %}
+                             <td><span>Member</span> </td>
+                             {% elif member.is_staff == True and member.is_superuser == False %}
+                             <td><span style="color:blue">Reviewer</span> </td>
+                             {% elif member.is_superuser %}
+                             <td><span style="color:red">Admin</span> </td>
+                             {% endif %}
+                             {% if member.last_login%}
+                                 <td>{{ member.last_login|timesince }}</td>
+                             {% else %}
+                                 <td style="color:rgb(200,200,200)">ไม่มีการเคลื่อนไหว</td>
+                             {%endif%}
+                              <td>
+                                <span style="margin-right:5px;"><a href="{% url 'report:userinformation' id=member.id %}"><i class="fas fa-edit" style="color:black;font-size:20px;"></i></a></span>
+                               <span><a data-toggle="modal" data-target="#deletemodal{{member.id}}" style="color:red;font-size:20px;"><i class="fas fa-trash-alt"></i></a></span>
+                              </td>
+                           </tr>
+<!--                      popup editmember-->
+                        <div class="modal fade" id="editmodal{{member.id}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                          <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                  <span aria-hidden="true">&times;</span>
+                                </button>
+                              </div>
+                              <div class="modal-body">
+                                <span>You need to delete member id:{{member.id}} | {{member}} ?</span>
+                              </div>
+                              <div class="modal-footer">
+                              <form action="{%url 'report:memberdelete' id=member.id %}" method="post">
+                                  {%csrf_token%}
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-primary">Delete</button>
+                              </form>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+<!--                      popup deletemember-->
+                        <div class="modal fade" id="deletemodal{{member.id}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                          <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel">DELETE {{member}}</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                  <span aria-hidden="true">&times;</span>
+                                </button>
+                              </div>
+                              <div class="modal-body">
+                                <span>You need to delete member id:{{member.id}} | {{member}} ?</span>
+                              </div>
+                              <div class="modal-footer">
+                              <form action="{%url 'report:memberdelete' id=member.id %}" method="post">
+                                  {%csrf_token%}
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-primary">Delete</button>
+                              </form>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        {% endfor %}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+    <!--            ALL MOVIE-->
+                <div class="tabcontent_report" id="re_movie" style="display:none;">
+                    <div class="card shadow">
+                <div class="card-header border-0">
+                  <div class="row align-items-center">
+                    <div class="col">
+                      <h3 class="mb-0">ALL MOVIE</h3>
+                    </div>
+                  </div>
+                </div>
+                <div class="table-responsive">
+                  <!-- Projects table -->
+                  <table class="table align-items-center table-flush text-center">
+                    <thead class="thead-light">
+                      <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">ชื่อผู้รีวิว</th>
+                        <th scope="col">ชื่อเรื่อง</th>
+                        <th scope="col">วันที่</th>
+                        <th scope="col">แก้ไข</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+              {% for movie in movie %}
+                         <tr>
+                             <td>{{movie.id}}</td>
+                             <td>{{movie.author}}</td>
+                             <td  style="max-width: 116px;overflow: hidden">{{movie}}</td>
+                              <td>{{movie.review_date}}</td>
+                              <td>
+                                <span style="margin-right:5px;"><a href="{% url 'movie:moviedetail' id=movie.id %}"><i class="fas fa-eye" style="color:black;font-size:20px;"></i></a></span>
+                               <span><a data-toggle="modal" data-target="#deletemovie{{movie.id}}" style="color:red;font-size:20px;"><i class="fas fa-trash-alt"></i></a></span>
+                              </td>
+                           </tr>
+<!--              deletemovie-->
+<div class="modal fade" id="deletemovie{{movie.id}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="">DELETE {{movie}}</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        You need to delete movie:{{movie}} ?
+      </div>
+      <div class="modal-footer">
+          <form action="{%url 'movie:reportdeletemovie' id=movie.id %}">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="sunmit" class="btn btn-primary">DELETE</button>
+          </form>
+      </div>
+    </div>
+  </div>
+</div>
+                     {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+                  </div>
+    <!--            ALL WEBBOARD-->
+                <div class="tabcontent_report" id="re_webboard" style="display:none;">
+                   <div class="card shadow">
+                <div class="card-header border-0">
+                  <div class="row align-items-center">
+                    <div class="col">
+                      <h3 class="mb-0">ALL WEBBOARD</h3>
+                    </div>
+                  </div>
+                </div>
+                <div class="table-responsive">
+                  <!-- Projects table -->
+                  <table class="table align-items-center table-flush text-center">
+                    <thead class="thead-light">
+                      <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">ชื่อผู้โพส</th>
+                        <th scope="col">ชื่อเบอร์ด</th>
+                        <th scope="col">วันที่โพส</th>
+                        <th scope="col">แก้ไข</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+              {% for webboard in webboard %}
+                         <tr>
+                             <td>{{webboard.id}}</td>
+                             <td>{{webboard.Author}}</td>
+                             <td style="max-width: 116px;overflow: hidden">{{webboard}}</td>
+                              <td>{{ webboard.Post_Date }}</td>
+                              <td>
+                                <span style="margin-right:5px;"><a href="{% url 'board:boardcontent' slug=webboard.Slug %}"><i class="fas fa-eye" style="color:black;font-size:20px;"></i></a></span>
+                               <span><a data-toggle="modal" data-target="#deleteboard{{webboard.id}}" style="color:red;font-size:20px;"><i class="fas fa-trash-alt"></i></a></span>
+                              </td>
+                           </tr>
+              <!--              delete webboard-->
+<div class="modal fade" id="deleteboard{{webboard.id}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">DELETE {{webboard}}</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        You need to delete Webboard : {{webboard}} ?
+      </div>
+      <div class="modal-footer">
+          <form action="{%url 'board:deletewebboardreport' id=webboard.id %}">
+              {%csrf_token%}
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="sunmit" class="btn btn-primary">DELETE</button>
+          </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+                     {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+                </div>
+              </div>
+            </div>
+ </div>
+{%endblock content%}
