@@ -6,6 +6,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.generic import ListView
 from webboard.models import boardpost
 from accounts.models import Userprofile
+from django.db.models import Q
 # search.views.py
 movieperpage= 16
 # Create your views here.
@@ -209,8 +210,8 @@ def Search(request):
     if query == "":
             return redirect("../")
     else:
-        movie = movie.filter(moviename__icontains=query)
-        webboard = webboard.filter(Title__icontains=query)
+        movie = movie.filter(Q(moviename__icontains=query) | Q(director__icontains=query) | Q(author__username__icontains=query) | Q(actor__icontains=query))
+        webboard = webboard.filter(Q(Title__icontains=query) | Q(Author__username__icontains=query) )
     context ={
         'movie':movie,
         'webboard':webboard

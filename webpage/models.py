@@ -39,7 +39,6 @@ class Reviewmovie(models.Model):
     categorys = models.ManyToManyField(Category)
     director = models.CharField(max_length=2000)
     actor = models.CharField(max_length=2000)
-
     objects = PostManager()
 
     def __str__(self):
