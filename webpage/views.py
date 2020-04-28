@@ -8,7 +8,7 @@ from webboard.models import boardpost
 from accounts.models import Userprofile
 from django.db.models import Q
 # search.views.py
-movieperpage= 16
+movieperpage= 15
 # Create your views here.
 def Index(request):
     movie = Reviewmovie.objects.all().order_by('-review_date')
