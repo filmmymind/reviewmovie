@@ -263,9 +263,21 @@ clear:both;}
             {% csrf_token %}
              {{form.media}}
             {{form.as_p}}
-            <input type="submit" value="Comment" class="btn btn-danger">
+            <input {% if user.is_authenticated %} onclick="this.disabled=true,this.form.submit();"  {%else%} data-toggle="modal" data-target="#registermodal" {%endif%} value="Comment" class="btn btn-danger">
         </form>
     </div>
+<!--modal login require-->
+<div class="modal fade" id="registermodal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-body" style="color:black;">
+        <span>ต้องทำการ Login เผื่อเข้าใช้ <a href="{% url 'account:login' %}" style="color:blue">|Login|</a></span>
+           <button type="button" class="btn btn-secondary position-absolute" style="right:10px;top:10px;"data-dismiss="modal">Close</button>
+      </div>
+
+    </div>
+  </div>
+</div>
 <!--End Createcomment-->
 <!--Footer-->
 {% include 'footer.html'%}
