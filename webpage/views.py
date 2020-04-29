@@ -14,7 +14,7 @@ def Index(request):
     movie = Reviewmovie.objects.all().order_by('-review_date')
     recom = Reviewmovie.objects.all().order_by('-score')[:6]
     # Page paginator
-    paginator = Paginator(movie, movieperpage)
+    paginator = Paginator(movie, 12)
     page = request.GET.get('page')
     try:
         items = paginator.page(page)
