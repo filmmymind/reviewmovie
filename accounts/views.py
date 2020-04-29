@@ -32,7 +32,7 @@ def Register(request):
                 return redirect("account:login")
         else:
             messages.error(request, 'Password และ Confirm Password ไม่ตรงกัน')
-            return redirect('register')
+            return redirect('account:register')
     else:
      return render(request,'register.html')
 
