@@ -1,5 +1,5 @@
 <form action="delete" method="post">
     {% csrf_token %}
     <h1>do you want to delete {{deletemember.username}}?</h1>
-    <a href="{% url 'report:report' %}">cancle</a><button type="submit" class="btn btn-danger">Delete</button>
+    <a href="{% url 'report:report' %}">cancel</a><button type="submit" class="btn btn-danger">Delete</button>
 </form>

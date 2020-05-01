@@ -139,7 +139,7 @@
             <p>{{movie.review|linebreaks}}</p>
         </div>
         <div class="form-group position-absolute" style="right:15px;">
-        {% if user == movie.author %}
+        {% if user == movie.author or user.is_superuser %}
             <a class="btn btn-warning text-white" href="{% url 'edit_delete:editmovie' id=movie.id  %}">Edit</a>
          {%endif%}
             <!--            deletemovie-->
@@ -201,7 +201,7 @@
              <input type="hidden" name="allscore" value="{{movie.rating}}">
             <div class="form-group" style="clear:both;">
                 <button type="button" class="btn btn-primary" {% if user.is_authenticated %} onclick="this.disabled=true,this.form.submit();"  {%else%} data-toggle="modal" data-target="#registermodal" {%endif%}>Submit</button>
-                <button type="reset" class="btn btn-warning">Cancle</button>
+                <button type="reset" class="btn btn-warning">cancel</button>
             </div>
         </form>
     </div>
@@ -210,7 +210,7 @@
 <!--comment list-->
     {% for comment in comment %}
     <div class="container shadow p-5 mb-3 bg-mred text-white border border-white position-relative" >
-        {%if user == comment.author %}
+        {% if user == comment.author or user.is_superuser %}
         <div class="form-group position-absolute" style="right:15px;top:3px;font-size: 18px;">
             <a class="text-white" onclick="editcomment({{comment.id}})"><i class="far fa-edit"></i></a>
             <a data-toggle="modal" data-target="#comment{{comment.id}}" class="text-white"><i class="far fa-trash-alt"></i></a>
@@ -294,7 +294,7 @@
                 <textarea cols="30" rows="5" style="background:white;" name="commentedit">{{comment.comment}}</textarea>
                 <div class="form-group position-relative">
                     <button type="submit"  class="btn btn-warning position-relative">Save</button>
-                    <button type="reset"  onclick="editcomment({{comment.id}})" class="btn btn-secondary" >Cancle</button>
+                    <button type="reset"  onclick="editcomment({{comment.id}})" class="btn btn-secondary" >cancel</button>
                 </div>
             </form>
 <!--            end edit comment-->
@@ -321,7 +321,7 @@
         </div>
         {% for reply in comment.replies.all %}
         <div class="member-reply position-relative">
-            {% if user == reply.author %}
+            {% if user == reply.author or user.is_superuser %}
             <div class="btn-group position-absolute" style="top:0;right:15px;">
                   <a  class="editdropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" >
                     <i class="fas fa-ellipsis-h"></i>
